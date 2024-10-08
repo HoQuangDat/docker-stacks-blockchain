@@ -1,0 +1,18 @@
+version: "3.5"
+services:
+  bns:
+    image: bash
+    container_name: bns_data
+    working_dir: /srv
+    volumes:
+      - ${SCRIPTPATH}/persistent-data/bns-data:/bns-data
+      - ${SCRIPTPATH}/scripts:/scripts
+    env_file:
+      - ${SCRIPTPATH}/.env
+    environment:
+      - USER_ID=${USER_ID}
+    networks:
+      - default
+    profiles:
+      - bns
+    command: sh -c "/scripts/setup-bns.sh"
