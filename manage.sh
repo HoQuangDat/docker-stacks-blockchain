@@ -54,7 +54,7 @@ EXIT_MSG="${COLRED}[ Exit Error ]${COLRESET} "
 DEBUG="[ DEBUG ] "
 
 # Use .env in the local dir
-#     - This var is also used in the docker-compose yaml files
+#     - This var is also used in the docker compose yaml files
 ABS_PATH="$( cd -- "$(dirname "${0}")" >/dev/null 2>&1 ; pwd -P )"
 export SCRIPTPATH=${ABS_PATH}
 ENV_FILE="${SCRIPTPATH}/.env"
@@ -232,7 +232,7 @@ check_network() {
 	local profile="${1}"
 	${VERBOSE} && log "Checking if default services are running"
 	# Determine if the services are already running
-	if [[ $(docker-compose -f "${SCRIPTPATH}/compose-files/common.yaml" --profile ${profile} ps -q) ]]; then
+	if [[ $(docker compose -f "${SCRIPTPATH}/compose-files/common.yaml" --profile ${profile} ps -q) ]]; then
 		${VERBOSE} && log "Docker services have a pid"
 		# Docker is running, return success
 		return 0
@@ -513,7 +513,7 @@ set_flags() {
 ordered_stop() {
 	${VERBOSE} && log "Starting the ordered stop of services"
 	if [[ -f "${SCRIPTPATH}/compose-files/common.yaml" && -f "${SCRIPTPATH}/compose-files/networks/${NETWORK}.yaml" ]]; then
-		if eval "docker-compose -f ${SCRIPTPATH}/compose-files/common.yaml -f ${SCRIPTPATH}/compose-files/networks/${NETWORK}.yaml ps -q stacks-blockchain > /dev/null  2>&1"; then
+		if eval "docker compose -f ${SCRIPTPATH}/compose-files/common.yaml -f ${SCRIPTPATH}/compose-files/networks/${NETWORK}.yaml ps -q stacks-blockchain > /dev/null  2>&1"; then
 			${VERBOSE} && log "Services are running. continuing to stop services"
 			for service in "${DEFAULT_SERVICES[@]}"; do
 				if check_container "${service}"; then
@@ -525,7 +525,7 @@ ordered_stop() {
                         log "    Timeout is set for ${STACKS_SHUTDOWN_TIMEOUT} seconds"
 					fi
                     # Compose a command to run using provided vars
-					cmd="docker-compose --env-file ${ENV_FILE} -f ${SCRIPTPATH}/compose-files/common.yaml -f ${SCRIPTPATH}/compose-files/networks/${NETWORK}.yaml --profile ${PROFILE} stop ${timeout} ${service}"
+					cmd="docker compose --env-file ${ENV_FILE} -f ${SCRIPTPATH}/compose-files/common.yaml -f ${SCRIPTPATH}/compose-files/networks/${NETWORK}.yaml --profile ${PROFILE} stop ${timeout} ${service}"
 					${VERBOSE} && log "Running: ${cmd}"
 					eval "${cmd}"
 				fi
@@ -678,7 +678,7 @@ status() {
 		echo
 		log "${COLBOLD}Stacks Blockchain services are running${COLRESET}"
 		echo
-		${VERBOSE} && echo -e "$(docker-compose -f "${SCRIPTPATH}/compose-files/common.yaml" ps)"
+		${VERBOSE} && echo -e "$(docker compose -f "${SCRIPTPATH}/compose-files/common.yaml" ps)"
 		exit 0
 	else
 		echo
@@ -803,7 +803,7 @@ event_replay(){
 	exit 0
 }
 
-# Execute the docker-compose command using provided args
+# Execute the docker compose command using provided args
 run_docker() {
 	local action="${1}"
 	local flags="${2}"
@@ -811,7 +811,7 @@ run_docker() {
 	local param="${4}"
 	# # set any optional flags
 	set_flags "${flags}"
-	cmd="docker-compose --env-file ${ENV_FILE} -f ${SCRIPTPATH}/compose-files/common.yaml -f ${SCRIPTPATH}/compose-files/networks/${NETWORK}.yaml ${OPTIONAL_FLAGS} --profile ${profile} ${action} ${param}"
+	cmd="docker compose --env-file ${ENV_FILE} -f ${SCRIPTPATH}/compose-files/common.yaml -f ${SCRIPTPATH}/compose-files/networks/${NETWORK}.yaml ${OPTIONAL_FLAGS} --profile ${profile} ${action} ${param}"
 	# Log the command we'll be running for verbosity
 	${VERBOSE} && log "action: ${action}"
 	${VERBOSE} && log "profile: ${profile}"
@@ -854,7 +854,7 @@ run_docker() {
 }
 
 # Check for required binaries, exit if missing
-for cmd in docker-compose docker id; do
+for cmd in docker compose docker id; do
 	command -v "${cmd}" >/dev/null 2>&1 || log_exit "Missing command: ${cmd}"
 done
 
